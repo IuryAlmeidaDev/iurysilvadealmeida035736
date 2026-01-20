@@ -5,6 +5,7 @@ import com.iury.backendsenior.dto.AlbumResponseDTO;
 import com.iury.backendsenior.dto.ArtistaDTO;
 import com.iury.backendsenior.model.Album;
 import com.iury.backendsenior.service.AlbumService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,7 +25,7 @@ public class AlbumController {
     private final AlbumService service;
 
     @PostMapping
-    public ResponseEntity<AlbumResponseDTO> criar(@RequestBody AlbumRequestDTO dto) {
+    public ResponseEntity<AlbumResponseDTO> criar(@RequestBody @Valid AlbumRequestDTO dto) {
         Album album = Album.builder()
                 .titulo(dto.titulo())
                 .anoLancamento(dto.anoLancamento())
@@ -44,6 +45,30 @@ public class AlbumController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(new PageImpl<>(listaDtos, pageable, resultado.getTotalElements()));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AlbumResponseDTO> buscarPorId(@PathVariable Long id) {
+        Album album = service.buscarPorId(id); 
+        return ResponseEntity.ok(toResponseDTO(album));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AlbumResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid AlbumRequestDTO dto) {
+        Album album = Album.builder()
+                .titulo(dto.titulo())
+                .anoLancamento(dto.anoLancamento())
+                .build();
+
+        Album atualizado = service.atualizar(id, album, dto.artistaIds());
+
+        return ResponseEntity.ok(toResponseDTO(atualizado));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 
     private AlbumResponseDTO toResponseDTO(Album album) {
