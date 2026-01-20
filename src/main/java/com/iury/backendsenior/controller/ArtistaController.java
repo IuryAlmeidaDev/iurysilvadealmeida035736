@@ -3,6 +3,8 @@ package com.iury.backendsenior.controller;
 import com.iury.backendsenior.dto.ArtistaDTO;
 import com.iury.backendsenior.model.Artista;
 import com.iury.backendsenior.service.ArtistaService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +22,7 @@ public class ArtistaController {
     private final ArtistaService service;
 
     @PostMapping
-    public ResponseEntity<ArtistaDTO> criar(@RequestBody ArtistaDTO dto) {
+    public ResponseEntity<ArtistaDTO> criar(@RequestBody @Valid ArtistaDTO dto) {
         Artista artista = new Artista();
         artista.setNome(dto.nome());
         
@@ -44,7 +46,7 @@ public class ArtistaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ArtistaDTO> atualizar(@PathVariable Long id, @RequestBody ArtistaDTO dto) {
+    public ResponseEntity<ArtistaDTO> atualizar(@PathVariable Long id, @RequestBody @Valid ArtistaDTO dto) {
         Artista artista = new Artista();
         artista.setNome(dto.nome());
         
