@@ -5,7 +5,7 @@ import com.iury.backendsenior.dto.AlbumResponseDTO;
 import com.iury.backendsenior.dto.ArtistaDTO;
 import com.iury.backendsenior.model.Album;
 import com.iury.backendsenior.service.AlbumService;
-import jakarta.validation.Valid;
+import com.iury.backendsenior.service.MinioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class AlbumController {
 
     private final AlbumService service;
+    private final MinioService minioService;
 
     @PostMapping
     public ResponseEntity<AlbumResponseDTO> criar(@RequestBody @Valid AlbumRequestDTO dto) {
@@ -36,10 +39,18 @@ public class AlbumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDTO(salvo));
     }
 
+    @PostMapping(value = "/{id}/capa", consumes = "multipart/form-data")
+    public ResponseEntity<AlbumResponseDTO> uploadCapa(@PathVariable Long id,
+                                                       @RequestParam("file") MultipartFile file) {
+        Album albumAtualizado = service.atualizarCapa(id, file);
+
+        return ResponseEntity.ok(toResponseDTO(albumAtualizado));
+    }
+
     @GetMapping
     public ResponseEntity<Page<AlbumResponseDTO>> listar(Pageable pageable) {
         Page<Album> resultado = service.listar(pageable);
-        
+
         List<AlbumResponseDTO> listaDtos = resultado.getContent().stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
@@ -49,7 +60,7 @@ public class AlbumController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AlbumResponseDTO> buscarPorId(@PathVariable Long id) {
-        Album album = service.buscarPorId(id); 
+        Album album = service.buscarPorId(id);
         return ResponseEntity.ok(toResponseDTO(album));
     }
 
@@ -76,11 +87,16 @@ public class AlbumController {
                 .map(a -> new ArtistaDTO(a.getId(), a.getNome()))
                 .collect(Collectors.toList());
 
+        String urlCapa = null;
+        if (album.getCapaUrl() != null && !album.getCapaUrl().isBlank()) {
+            urlCapa = minioService.gerarUrlPreAssinada(album.getCapaUrl());
+        }
+
         return new AlbumResponseDTO(
                 album.getId(),
                 album.getTitulo(),
                 album.getAnoLancamento(),
-                album.getCapaUrl(),
+                urlCapa,
                 artistasDto
         );
     }

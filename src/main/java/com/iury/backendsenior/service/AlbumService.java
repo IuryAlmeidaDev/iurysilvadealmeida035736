@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
@@ -19,6 +19,7 @@ public class AlbumService {
 
     private final AlbumRepository repository;
     private final ArtistaRepository artistaRepository;
+    private final MinioService minioService; 
 
     @Transactional
     public Album salvar(Album album, List<Long> artistaIds) {
@@ -45,6 +46,17 @@ public class AlbumService {
         }
 
         return repository.save(albumExistente);
+    }
+
+    @Transactional
+    public Album atualizarCapa(Long id, MultipartFile arquivo) {
+        Album album = buscarPorId(id);
+
+        String nomeArquivo = minioService.uploadArquivo(arquivo);
+
+        album.setCapaUrl(nomeArquivo); 
+        
+        return repository.save(album);
     }
 
     public Album buscarPorId(Long id) {
