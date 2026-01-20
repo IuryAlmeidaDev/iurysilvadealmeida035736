@@ -5,4 +5,5 @@ import java.util.List;
 public record AlbumRequestDTO(
     String titulo,
     Integer anoLancamento,
-    List<Long> artistaIds 
+    List<Long> artistaIds
+) {}

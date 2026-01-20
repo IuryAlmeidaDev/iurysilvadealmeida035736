@@ -28,8 +28,6 @@ public class Album {
     @Column(name = "capa_url")
     private String capaUrl;
 
- 
-    [cite_start]
     @ManyToMany
     @JoinTable(
         name = "artista_album",
