@@ -1,28 +1,21 @@
--- Criação da tabela de Artistas
--- Decisão: Usei SERIAL para o ID para facilitar a autoincrementação no Postgres
 CREATE TABLE artista (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id BIGSERIAL PRIMARY KEY, 
+    nome VARCHAR(255) NOT NULL
 );
 
--- Criação da tabela de Álbuns
 CREATE TABLE album (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY, 
     titulo VARCHAR(255) NOT NULL,
     ano_lancamento INTEGER,
-    capa_url VARCHAR(500), -- Armazena a referência da imagem no MinIO
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    capa_url VARCHAR(255)
 );
 
--- Tabela associativa para o relacionamento N:N (Muitos-para-Muitos)
--- Decisão: Um artista pode ter vários álbuns e um álbum pode ter vários artistas (ex: Feats)
 CREATE TABLE artista_album (
-    artista_id INTEGER NOT NULL,
-    album_id INTEGER NOT NULL,
-    CONSTRAINT fk_artista FOREIGN KEY (artista_id) REFERENCES artista (id) ON DELETE CASCADE,
-    CONSTRAINT fk_album FOREIGN KEY (album_id) REFERENCES album (id) ON DELETE CASCADE,
-    PRIMARY KEY (artista_id, album_id)
+    artista_id BIGINT NOT NULL, 
+    album_id BIGINT NOT NULL,   
+    PRIMARY KEY (artista_id, album_id),
+    CONSTRAINT fk_artista FOREIGN KEY (artista_id) REFERENCES artista(id),
+    CONSTRAINT fk_album FOREIGN KEY (album_id) REFERENCES album(id)
 );
 
 -- Índices para otimizar as consultas (Performance)

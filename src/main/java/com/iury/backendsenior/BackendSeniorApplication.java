@@ -1,4 +1,4 @@
-package com.iury.backend_senior;
+package com.iury.backendsenior; 
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
