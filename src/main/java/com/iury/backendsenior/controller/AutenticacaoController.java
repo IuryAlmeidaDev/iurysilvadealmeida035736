@@ -2,6 +2,7 @@ package com.iury.backendsenior.controller;
 
 import com.iury.backendsenior.dto.DadosAutenticacao;
 import com.iury.backendsenior.dto.DadosTokenJWT;
+import com.iury.backendsenior.dto.DadosTokensJWT;
 import com.iury.backendsenior.dto.RefreshTokenDTO;
 import com.iury.backendsenior.dto.RegisterDTO;
 import com.iury.backendsenior.model.Usuario;
@@ -43,20 +44,23 @@ public class AutenticacaoController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacao dados) {
+    public ResponseEntity<DadosTokensJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacao dados) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
 
         var authentication = manager.authenticate(authenticationToken);
 
-        var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
+        var usuario = (Usuario) authentication.getPrincipal();
 
-        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
+        var accessToken = tokenService.gerarToken(usuario);
+        var refreshToken = tokenService.gerarRefreshToken(usuario);
+
+        return ResponseEntity.ok(new DadosTokensJWT(accessToken, refreshToken));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<DadosTokenJWT> refresh(@RequestBody @Valid RefreshTokenDTO dto) {
         String login = tokenService.validarRefreshToken(dto.refreshToken());
-        
+
         if (login.isBlank()) {
             return ResponseEntity.status(401).build();
         }
