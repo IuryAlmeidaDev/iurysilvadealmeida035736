@@ -6,6 +6,7 @@ import com.iury.backendsenior.dto.ArtistaDTO;
 import com.iury.backendsenior.model.Album;
 import com.iury.backendsenior.service.AlbumService;
 import com.iury.backendsenior.service.MinioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,16 +35,25 @@ public class AlbumController {
                 .build();
 
         Album salvo = service.salvar(album, dto.artistaIds());
-
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDTO(salvo));
     }
 
     @PostMapping(value = "/{id}/capa", consumes = "multipart/form-data")
-    public ResponseEntity<AlbumResponseDTO> uploadCapa(@PathVariable Long id,
-                                                       @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<AlbumResponseDTO> uploadCapa(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file
+    ) {
         Album albumAtualizado = service.atualizarCapa(id, file);
-
         return ResponseEntity.ok(toResponseDTO(albumAtualizado));
+    }
+
+    @PostMapping(value = "/{id}/imagens", consumes = "multipart/form-data")
+    public ResponseEntity<List<String>> uploadImagens(
+            @PathVariable Long id,
+            @RequestParam("files") MultipartFile[] files
+    ) {
+        List<String> urls = service.adicionarImagens(id, files);
+        return ResponseEntity.ok(urls);
     }
 
     @GetMapping
@@ -65,14 +74,16 @@ public class AlbumController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AlbumResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid AlbumRequestDTO dto) {
+    public ResponseEntity<AlbumResponseDTO> atualizar(
+            @PathVariable Long id,
+            @RequestBody @Valid AlbumRequestDTO dto
+    ) {
         Album album = Album.builder()
                 .titulo(dto.titulo())
                 .anoLancamento(dto.anoLancamento())
                 .build();
 
         Album atualizado = service.atualizar(id, album, dto.artistaIds());
-
         return ResponseEntity.ok(toResponseDTO(atualizado));
     }
 
@@ -87,16 +98,21 @@ public class AlbumController {
                 .map(a -> new ArtistaDTO(a.getId(), a.getNome()))
                 .collect(Collectors.toList());
 
-        String urlCapa = null;
+        String capaUrl = null;
         if (album.getCapaUrl() != null && !album.getCapaUrl().isBlank()) {
-            urlCapa = minioService.gerarUrlPreAssinada(album.getCapaUrl());
+            capaUrl = minioService.gerarUrlPreAssinada(album.getCapaUrl());
         }
+
+        List<String> imagens = album.getImagens().stream()
+                .map(img -> minioService.gerarUrlPreAssinada(img.getNomeArquivo()))
+                .toList();
 
         return new AlbumResponseDTO(
                 album.getId(),
                 album.getTitulo(),
                 album.getAnoLancamento(),
-                urlCapa,
+                capaUrl,
+                imagens,
                 artistasDto
         );
     }

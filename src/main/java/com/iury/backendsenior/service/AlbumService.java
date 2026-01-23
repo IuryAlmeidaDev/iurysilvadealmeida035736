@@ -1,7 +1,9 @@
 package com.iury.backendsenior.service;
 
 import com.iury.backendsenior.model.Album;
+import com.iury.backendsenior.model.AlbumImagem;
 import com.iury.backendsenior.model.Artista;
+import com.iury.backendsenior.repository.AlbumImagemRepository;
 import com.iury.backendsenior.repository.AlbumRepository;
 import com.iury.backendsenior.repository.ArtistaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,30 +13,33 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AlbumService {
 
-    private final AlbumRepository repository;
+    private final AlbumRepository albumRepository;
+    private final AlbumImagemRepository albumImagemRepository;
     private final ArtistaRepository artistaRepository;
-    private final MinioService minioService; 
+    private final MinioService minioService;
 
     @Transactional
     public Album salvar(Album album, List<Long> artistaIds) {
         List<Artista> artistas = artistaRepository.findAllById(artistaIds);
         album.setArtistas(artistas);
-        return repository.save(album);
+        return albumRepository.save(album);
     }
 
     public Page<Album> listar(Pageable pageable) {
-        return repository.findAll(pageable);
+        return albumRepository.findAll(pageable);
     }
 
     @Transactional
     public Album atualizar(Long id, Album albumAtualizado, List<Long> novosArtistasIds) {
-        Album albumExistente = repository.findById(id)
+        Album albumExistente = albumRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Álbum não encontrado com id: " + id));
 
         albumExistente.setTitulo(albumAtualizado.getTitulo());
@@ -45,30 +50,60 @@ public class AlbumService {
             albumExistente.setArtistas(novosArtistas);
         }
 
-        return repository.save(albumExistente);
+        return albumRepository.save(albumExistente);
     }
 
     @Transactional
     public Album atualizarCapa(Long id, MultipartFile arquivo) {
         Album album = buscarPorId(id);
-
         String nomeArquivo = minioService.uploadArquivo(arquivo);
-
-        album.setCapaUrl(nomeArquivo); 
-        
-        return repository.save(album);
+        album.setCapaUrl(nomeArquivo);
+        return albumRepository.save(album);
     }
 
     public Album buscarPorId(Long id) {
-        return repository.findById(id)
+        return albumRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Álbum não encontrado com id: " + id));
     }
 
     @Transactional
     public void deletar(Long id) {
-        if (!repository.existsById(id)) {
+        if (!albumRepository.existsById(id)) {
             throw new EntityNotFoundException("Álbum não encontrado com id: " + id);
         }
-        repository.deleteById(id);
+        albumRepository.deleteById(id);
+    }
+
+    @Transactional
+    public List<String> adicionarImagens(Long albumId, MultipartFile[] files) {
+        if (files == null || files.length == 0) {
+            throw new IllegalArgumentException("Nenhum arquivo enviado");
+        }
+
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new EntityNotFoundException("Álbum não encontrado com id: " + albumId));
+
+        int ordem = albumImagemRepository.findByAlbumIdOrderByOrdemAsc(albumId).stream()
+                .map(AlbumImagem::getOrdem)
+                .filter(o -> o != null)
+                .max(Integer::compareTo)
+                .orElse(0) + 1;
+
+        List<String> urls = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            String nomeArquivo = minioService.uploadArquivo(file);
+
+            AlbumImagem imagem = new AlbumImagem();
+            imagem.setAlbum(album);
+            imagem.setNomeArquivo(nomeArquivo);
+            imagem.setOrdem(ordem++);
+
+            albumImagemRepository.save(imagem);
+
+            urls.add(minioService.gerarUrlPreAssinada(nomeArquivo));
+        }
+
+        return urls;
     }
 }
