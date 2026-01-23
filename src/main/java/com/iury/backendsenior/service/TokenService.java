@@ -19,6 +19,9 @@ public class TokenService {
     @Value("${jwt.expiration}")
     private Long expirationMillis;
 
+    @Value("${jwt.refresh-expiration}")
+    private Long refreshExpirationMillis;
+
     public String gerarToken(Usuario usuario) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -40,6 +43,39 @@ public class TokenService {
                     .build()
                     .verify(tokenJWT)
                     .getSubject();
+        } catch (JWTVerificationException exception) {
+            return "";
+        }
+    }
+
+    public String gerarRefreshToken(Usuario usuario) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.create()
+                    .withIssuer("Backend-Senior-API")
+                    .withSubject(usuario.getLogin())
+                    .withClaim("type", "refresh")
+                    .withExpiresAt(Instant.now().plusMillis(refreshExpirationMillis))
+                    .sign(algorithm);
+        } catch (JWTCreationException exception) {
+            throw new RuntimeException("Erro ao gerar refresh token JWT", exception);
+        }
+    }
+
+    public String validarRefreshToken(String refreshToken) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            var decoded = JWT.require(algorithm)
+                    .withIssuer("Backend-Senior-API")
+                    .build()
+                    .verify(refreshToken);
+
+            String type = decoded.getClaim("type").asString();
+            if (!"refresh".equals(type)) {
+                return "";
+            }
+
+            return decoded.getSubject();
         } catch (JWTVerificationException exception) {
             return "";
         }
