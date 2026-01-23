@@ -50,7 +50,7 @@ public class MinioService {
                             .method(Method.GET)
                             .bucket(bucketName)
                             .object(nomeArquivo)
-                            .expiry(2, TimeUnit.HOURS)
+                            .expiry(30, TimeUnit.MINUTES)
                             .build()
             );
         } catch (Exception e) {
