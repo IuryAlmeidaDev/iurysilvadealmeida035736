@@ -1,6 +1,8 @@
 package com.iury.backendsenior.service;
 
+import io.minio.BucketExistsArgs;
 import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.http.Method;
@@ -24,6 +26,16 @@ public class MinioService {
 
     public String uploadArquivo(MultipartFile arquivo) {
         try {
+            boolean found = minioClient.bucketExists(
+                    BucketExistsArgs.builder().bucket(bucketName).build()
+            );
+
+            if (!found) {
+                minioClient.makeBucket(
+                        MakeBucketArgs.builder().bucket(bucketName).build()
+                );
+            }
+
             String nomeArquivo = UUID.randomUUID() + "-" + arquivo.getOriginalFilename();
 
             try (InputStream inputStream = arquivo.getInputStream()) {
@@ -54,6 +66,7 @@ public class MinioService {
                             .build()
             );
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
