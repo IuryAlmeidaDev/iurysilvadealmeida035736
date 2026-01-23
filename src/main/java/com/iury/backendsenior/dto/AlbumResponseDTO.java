@@ -7,5 +7,6 @@ public record AlbumResponseDTO(
     String titulo,
     Integer anoLancamento,
     String capaUrl,
+    List<String> imagens,
     List<ArtistaDTO> artistas
 ) {}
