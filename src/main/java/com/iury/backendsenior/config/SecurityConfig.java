@@ -33,6 +33,7 @@ public class SecurityConfig {
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/v1/auth/login").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/v1/auth/register").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/v1/auth/refresh").permitAll();
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

@@ -2,6 +2,7 @@ package com.iury.backendsenior.controller;
 
 import com.iury.backendsenior.dto.DadosAutenticacao;
 import com.iury.backendsenior.dto.DadosTokenJWT;
+import com.iury.backendsenior.dto.RefreshTokenDTO;
 import com.iury.backendsenior.dto.RegisterDTO;
 import com.iury.backendsenior.model.Usuario;
 import com.iury.backendsenior.repository.UsuarioRepository;
@@ -28,11 +29,12 @@ public class AutenticacaoController {
     private final UsuarioRepository repository;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data){
-        if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data) {
+        if (this.repository.findByLogin(data.login()) != null) {
+            return ResponseEntity.badRequest().build();
+        }
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.senha());
-
         Usuario newUser = new Usuario(data.login(), encryptedPassword, data.role());
 
         this.repository.save(newUser);
@@ -43,11 +45,28 @@ public class AutenticacaoController {
     @PostMapping("/login")
     public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacao dados) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
-        
+
         var authentication = manager.authenticate(authenticationToken);
 
         var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
 
         return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<DadosTokenJWT> refresh(@RequestBody @Valid RefreshTokenDTO dto) {
+        String login = tokenService.validarRefreshToken(dto.refreshToken());
+        
+        if (login.isBlank()) {
+            return ResponseEntity.status(401).build();
+        }
+
+        Usuario usuario = repository.findByLogin(login);
+        if (usuario == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String novoAccessToken = tokenService.gerarToken(usuario);
+        return ResponseEntity.ok(new DadosTokenJWT(novoAccessToken));
     }
 }
