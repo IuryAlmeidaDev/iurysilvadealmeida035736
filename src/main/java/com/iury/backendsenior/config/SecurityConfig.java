@@ -24,14 +24,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers(HttpMethod.POST, "/v1/auth/login").permitAll();
+                    req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     req.requestMatchers("/actuator/**").permitAll();
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/v1/auth/login").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/v1/auth/register").permitAll();
+                    req.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
