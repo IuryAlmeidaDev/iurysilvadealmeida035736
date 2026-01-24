@@ -1,6 +1,13 @@
-# Backend Senior – Teste Prático
+# Projeto Prático - Implementação Back End Java Sênior
 
-API desenvolvida em **Spring Boot** para gerenciamento de artistas e álbuns musicais, com autenticação JWT, versionamento de endpoints, upload de imagens em armazenamento S3 compatível (MinIO) e controle de banco via Flyway.
+> **Candidato:** Iury Almeida
+> **Cargo:** Analista de Tecnologia da Informação
+> **Perfil:** Engenheiro da Computação (Nível Sênior)
+> **Processo Seletivo:** Edital Conjunto N° 001/2026/SEPLAG/SEFAZ/SEDUC...
+
+---
+
+API desenvolvida em **Spring Boot** para gerenciamento de artistas e álbuns musicais, atendendo aos requisitos do **Anexo II-A** do edital. O projeto conta com autenticação JWT, versionamento de endpoints, upload de imagens em armazenamento S3 compatível (MinIO) e controle de banco via Flyway.
 
 Todos os endpoints estão versionados em `/v1`.
 
@@ -38,7 +45,7 @@ O comando acima sobe:
 ## 🌐 URLs importantes
 
 - **Swagger (OpenAPI)**  
-  http://localhost:8080/swagger-ui.html
+  http://localhost:8080/swagger-ui/index.html
 
 - **Health Check**  
   http://localhost:8080/actuator/health
