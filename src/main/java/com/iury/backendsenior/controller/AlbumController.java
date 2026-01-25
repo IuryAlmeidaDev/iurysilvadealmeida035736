@@ -95,7 +95,7 @@ public class AlbumController {
 
     private AlbumResponseDTO toResponseDTO(Album album) {
         List<ArtistaDTO> artistasDto = album.getArtistas().stream()
-                .map(a -> new ArtistaDTO(a.getId(), a.getNome()))
+                .map(a -> new ArtistaDTO(a.getId(), a.getNome(), null))
                 .collect(Collectors.toList());
 
         String capaUrl = null;
