@@ -95,6 +95,7 @@ A API utiliza **JWT** para autenticação:
 - `POST /v1/albuns`
 - `PUT /v1/albuns/{id}`
 - `GET /v1/albuns/{id}`
+- `GET /v1/albuns?tipoArtista=CANTOR|BANDA`
 
 ### 🖼️ Upload de imagens
 - `POST /v1/albuns/{id}/capa`
