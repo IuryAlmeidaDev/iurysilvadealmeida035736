@@ -3,7 +3,6 @@ package com.iury.backendsenior.controller;
 import com.iury.backendsenior.dto.ArtistaDTO;
 import com.iury.backendsenior.model.Artista;
 import com.iury.backendsenior.service.ArtistaService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +24,8 @@ public class ArtistaController {
     public ResponseEntity<ArtistaDTO> criar(@RequestBody @Valid ArtistaDTO dto) {
         Artista artista = new Artista();
         artista.setNome(dto.nome());
-        
+        artista.setTipo(dto.tipo());
+
         Artista salvo = service.salvar(artista);
         return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(salvo));
     }
@@ -46,10 +46,14 @@ public class ArtistaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ArtistaDTO> atualizar(@PathVariable Long id, @RequestBody @Valid ArtistaDTO dto) {
+    public ResponseEntity<ArtistaDTO> atualizar(
+            @PathVariable Long id,
+            @RequestBody @Valid ArtistaDTO dto
+    ) {
         Artista artista = new Artista();
         artista.setNome(dto.nome());
-        
+        artista.setTipo(dto.tipo());
+
         Artista atualizado = service.atualizar(id, artista);
         return ResponseEntity.ok(toDTO(atualizado));
     }
@@ -61,6 +65,10 @@ public class ArtistaController {
     }
 
     private ArtistaDTO toDTO(Artista artista) {
-        return new ArtistaDTO(artista.getId(), artista.getNome());
+        return new ArtistaDTO(
+                artista.getId(),
+                artista.getNome(),
+                artista.getTipo()
+        );
     }
 }
