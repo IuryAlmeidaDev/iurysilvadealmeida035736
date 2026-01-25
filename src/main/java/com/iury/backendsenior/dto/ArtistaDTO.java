@@ -6,12 +6,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ArtistaDTO(
-        Long id,
+    Long id,
 
-        @NotBlank(message = "O nome não pode estar em branco")
-        @Size(min = 3, message = "O nome deve ter no mínimo 3 caracteres")
-        String nome,
+    @NotBlank(message = "O nome não pode estar em branco")
+    @Size(min = 3, message = "O nome deve ter no mínimo 3 caracteres")
+    String nome,
 
-        @NotNull(message = "O tipo do artista é obrigatório (CANTOR ou BANDA)")
-        TipoArtista tipo
-) {}
+    @NotNull(message = "O tipo do artista é obrigatório (CANTOR ou BANDA)")
+    TipoArtista tipo
+) {
+}

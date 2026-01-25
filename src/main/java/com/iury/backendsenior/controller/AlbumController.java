@@ -4,6 +4,7 @@ import com.iury.backendsenior.dto.AlbumRequestDTO;
 import com.iury.backendsenior.dto.AlbumResponseDTO;
 import com.iury.backendsenior.dto.ArtistaDTO;
 import com.iury.backendsenior.model.Album;
+import com.iury.backendsenior.model.enums.TipoArtista;
 import com.iury.backendsenior.service.AlbumService;
 import com.iury.backendsenior.service.MinioService;
 import jakarta.validation.Valid;
@@ -57,8 +58,11 @@ public class AlbumController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<AlbumResponseDTO>> listar(Pageable pageable) {
-        Page<Album> resultado = service.listar(pageable);
+    public ResponseEntity<Page<AlbumResponseDTO>> listar(
+            @RequestParam(required = false) TipoArtista tipoArtista,
+            Pageable pageable
+    ) {
+        Page<Album> resultado = service.listar(pageable, tipoArtista);
 
         List<AlbumResponseDTO> listaDtos = resultado.getContent().stream()
                 .map(this::toResponseDTO)
