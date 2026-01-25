@@ -3,6 +3,7 @@ package com.iury.backendsenior.service;
 import com.iury.backendsenior.model.Album;
 import com.iury.backendsenior.model.AlbumImagem;
 import com.iury.backendsenior.model.Artista;
+import com.iury.backendsenior.model.enums.TipoArtista;
 import com.iury.backendsenior.repository.AlbumImagemRepository;
 import com.iury.backendsenior.repository.AlbumRepository;
 import com.iury.backendsenior.repository.ArtistaRepository;
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +33,10 @@ public class AlbumService {
         return albumRepository.save(album);
     }
 
-    public Page<Album> listar(Pageable pageable) {
+    public Page<Album> listar(Pageable pageable, TipoArtista tipoArtista) {
+        if (tipoArtista != null) {
+            return albumRepository.findDistinctByArtistas_Tipo(tipoArtista, pageable);
+        }
         return albumRepository.findAll(pageable);
     }
 
