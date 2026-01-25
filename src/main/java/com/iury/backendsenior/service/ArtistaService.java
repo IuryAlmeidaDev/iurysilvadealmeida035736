@@ -1,6 +1,7 @@
 package com.iury.backendsenior.service;
 
 import com.iury.backendsenior.model.Artista;
+import com.iury.backendsenior.model.enums.TipoArtista;
 import com.iury.backendsenior.repository.ArtistaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,10 @@ public class ArtistaService {
 
     @Transactional
     public Artista salvar(Artista artista) {
+        // Segurança extra: se vier null do request, seta default
+        if (artista.getTipo() == null) {
+            artista.setTipo(TipoArtista.CANTOR);
+        }
         return repository.save(artista);
     }
 
@@ -35,7 +40,16 @@ public class ArtistaService {
     @Transactional
     public Artista atualizar(Long id, Artista artistaAtualizado) {
         Artista existente = buscarPorId(id);
-        existente.setNome(artistaAtualizado.getNome());
+
+        if (artistaAtualizado.getNome() != null && !artistaAtualizado.getNome().isBlank()) {
+            existente.setNome(artistaAtualizado.getNome());
+        }
+
+        // Se não vier tipo, mantém o atual (evita trocar por null)
+        if (artistaAtualizado.getTipo() != null) {
+            existente.setTipo(artistaAtualizado.getTipo());
+        }
+
         return repository.save(existente);
     }
 
