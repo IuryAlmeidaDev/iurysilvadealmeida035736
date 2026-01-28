@@ -1,8 +1,8 @@
 # Projeto Prático - Implementação Back End Java Sênior
 
-> **Candidato:** Iury Almeida
-> **Cargo:** Analista de Tecnologia da Informação
-> **Perfil:** Engenheiro da Computação (Nível Sênior)
+> **Candidato:** Iury Almeida  
+> **Cargo:** Analista de Tecnologia da Informação  
+> **Perfil:** Engenheiro da Computação (Nível Sênior)  
 > **Processo Seletivo:** Edital Conjunto N° 001/2026/SEPLAG/SEFAZ/SEDUC...
 
 ---
@@ -100,6 +100,28 @@ A API utiliza **JWT** para autenticação:
 ### 🖼️ Upload de imagens
 - `POST /v1/albuns/{id}/capa`
 - `POST /v1/albuns/{id}/imagens`
+
+---
+
+## 🧪 Testes Automatizados
+
+O projeto possui **testes unitários, de controller e de integração**, cobrindo os módulos principais conforme exigido no edital.
+
+### Tipos de testes
+
+- **Unitários:** services com JUnit 5 + Mockito  
+- **Controller:** `@WebMvcTest`, validação de status e JSON  
+- **Integração:** `@SpringBootTest` com banco H2 em memória  
+
+### Executar todos os testes
+```bash
+mvn test
+```
+
+### Executar apenas testes de integração
+```bash
+mvn -Dtest=*IntegrationTest test
+```
 
 ---
 
