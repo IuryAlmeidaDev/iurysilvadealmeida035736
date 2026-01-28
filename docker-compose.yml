@@ -22,6 +22,21 @@ services:
     networks:
       - backend-network
 
+  # Redis para Rate Limiting e Cache
+  redis:
+    image: redis:7-alpine
+    container_name: backend-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - backend-network
+
   # MinIO (Servidor de Arquivos compatível com S3)
   minio:
     image: minio/minio:latest
@@ -43,7 +58,6 @@ services:
   create-buckets:
     image: minio/mc
     container_name: backend-minio-init
-    # Não usamos restart aqui porque este container deve rodar uma vez e "morrer" (exit 0)
     depends_on:
       - minio
     entrypoint: >
@@ -66,6 +80,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       minio:
         condition: service_started
       create-buckets:
@@ -75,6 +91,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/backend_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      # Configurações do Redis para o container
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
       MINIO_URL: http://minio:9000
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
@@ -91,6 +110,7 @@ services:
 volumes:
   postgres_data:
   minio_data:
+  redis_data:
 
 networks:
   backend-network:
