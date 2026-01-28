@@ -45,7 +45,6 @@ class AutenticacaoControllerTest {
     @MockBean
     private TokenService tokenService;
 
-    // Ajuste da URL base para bater com o @RequestMapping("/v1/auth")
     private final String URL_BASE = "/v1/auth";
 
     @Test
@@ -54,7 +53,6 @@ class AutenticacaoControllerTest {
         var dto = new RegisterDTO("iury", "123456", UserRole.USER);
         Usuario usuarioExistente = new Usuario("iury", "senha", UserRole.USER);
 
-        // CORREÇÃO: findByLogin retorna Usuario (não Optional)
         when(usuarioRepository.findByLogin("iury")).thenReturn(usuarioExistente);
 
         mockMvc.perform(post(URL_BASE + "/register")
@@ -73,7 +71,7 @@ class AutenticacaoControllerTest {
         when(usuarioRepository.findByLogin("iury")).thenReturn(null);
 
         ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
-        when(usuarioRepository.save(captor.capture())).thenReturn(null); // save geralmente retorna a entidade
+        when(usuarioRepository.save(captor.capture())).thenReturn(null);
 
         mockMvc.perform(post(URL_BASE + "/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -82,7 +80,7 @@ class AutenticacaoControllerTest {
 
         var usuarioSalvo = captor.getValue();
         assertThat(usuarioSalvo.getLogin()).isEqualTo("iury");
-        assertThat(usuarioSalvo.getSenha()).startsWith("$2"); // BCrypt check
+        assertThat(usuarioSalvo.getSenha()).startsWith("$2");
     }
 
     @Test
@@ -120,7 +118,6 @@ class AutenticacaoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                // Conforme seu DadosTokenJWT (apenas um token é retornado aqui)
                 .andExpect(jsonPath("$.token").value("novo-access-token"));
     }
 
@@ -129,13 +126,12 @@ class AutenticacaoControllerTest {
     void refresh_deveRetornar401_quandoInvalido() throws Exception {
         var dto = new RefreshTokenDTO("refresh-invalido");
 
-        // Simula o retorno do catch do seu service (String vazia)
         when(tokenService.validarRefreshToken(anyString())).thenReturn("");
 
         mockMvc.perform(post(URL_BASE + "/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isUnauthorized()); // 401 conforme seu Controller
+                .andExpect(status().isUnauthorized());
 
         verify(usuarioRepository, never()).findByLogin(anyString());
     }
