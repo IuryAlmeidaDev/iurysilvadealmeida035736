@@ -54,8 +54,6 @@ class AlbumControllerTest {
     @MockBean
     private MinioService minioService;
 
-    // Mesmo excluindo auto-config de security, seu projeto pode registrar beans custom
-    // (ex: SecurityFilter) e ele pede esses caras no construtor. Mockando, evita subir contexto torto.
     @MockBean
     private TokenService tokenService;
 
@@ -87,5 +85,14 @@ class AlbumControllerTest {
 
         verify(service, times(1)).listar(any(), eq(TipoArtista.BANDA));
         verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void deveRetornarBadRequestQuandoTipoArtistaInvalido() throws Exception {
+        mockMvc.perform(get("/v1/albuns")
+                        .param("tipoArtista", "INVALIDO"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(service);
     }
 }
