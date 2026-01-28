@@ -1,8 +1,8 @@
 package com.iury.backendsenior.controller;
 
-import com.iury.backendsenior.dto.DadosAutenticacao;
-import com.iury.backendsenior.dto.RefreshTokenDTO;
-import com.iury.backendsenior.dto.RegisterDTO;
+import com.iury.backendsenior.dto.autenticacao.DadosAutenticacaoDTO;
+import com.iury.backendsenior.dto.autenticacao.RefreshTokenDTO;
+import com.iury.backendsenior.dto.autenticacao.RegisterDTO;
 import com.iury.backendsenior.model.UserRole;
 import com.iury.backendsenior.model.Usuario;
 import com.iury.backendsenior.repository.UsuarioRepository;
@@ -86,7 +86,7 @@ class AutenticacaoControllerTest {
     @Test
     @DisplayName("POST /v1/auth/login - deve retornar accessToken e refreshToken")
     void login_deveRetornarTokens() throws Exception {
-        var dto = new DadosAutenticacao("iury", "123456");
+        var dto = new DadosAutenticacaoDTO("iury", "123456");
         Usuario usuario = new Usuario("iury", "hash", UserRole.USER);
         Authentication authMock = mock(Authentication.class);
 

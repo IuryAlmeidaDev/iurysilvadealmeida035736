@@ -1,4 +1,4 @@
-package com.iury.backendsenior.dto;
+package com.iury.backendsenior.dto.autenticacao;
 
 import jakarta.validation.constraints.NotBlank;
 

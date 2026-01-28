@@ -1,4 +1,4 @@
-package com.iury.backendsenior.dto;
+package com.iury.backendsenior.dto.artista;
 
 import com.iury.backendsenior.model.enums.TipoArtista;
 import jakarta.validation.constraints.NotBlank;

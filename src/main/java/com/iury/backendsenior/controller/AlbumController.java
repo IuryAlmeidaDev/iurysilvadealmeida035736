@@ -1,8 +1,8 @@
 package com.iury.backendsenior.controller;
 
-import com.iury.backendsenior.dto.AlbumRequestDTO;
-import com.iury.backendsenior.dto.AlbumResponseDTO;
-import com.iury.backendsenior.dto.ArtistaDTO;
+import com.iury.backendsenior.dto.album.AlbumRequestDTO;
+import com.iury.backendsenior.dto.album.AlbumResponseDTO;
+import com.iury.backendsenior.dto.artista.ArtistaDTO;
 import com.iury.backendsenior.model.Album;
 import com.iury.backendsenior.model.enums.TipoArtista;
 import com.iury.backendsenior.service.AlbumService;

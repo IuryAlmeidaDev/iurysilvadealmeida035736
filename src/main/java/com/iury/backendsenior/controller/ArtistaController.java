@@ -1,6 +1,6 @@
 package com.iury.backendsenior.controller;
 
-import com.iury.backendsenior.dto.ArtistaDTO;
+import com.iury.backendsenior.dto.artista.ArtistaDTO;
 import com.iury.backendsenior.model.Artista;
 import com.iury.backendsenior.service.ArtistaService;
 import jakarta.validation.Valid;

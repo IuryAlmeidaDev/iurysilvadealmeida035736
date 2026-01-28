@@ -1,4 +1,4 @@
-package com.iury.backendsenior.dto;
+package com.iury.backendsenior.dto.album;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

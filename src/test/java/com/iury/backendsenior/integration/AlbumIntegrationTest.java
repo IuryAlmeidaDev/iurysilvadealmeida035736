@@ -1,7 +1,7 @@
 package com.iury.backendsenior.integration;
 
 import com.iury.backendsenior.config.IntegrationTestBase;
-import com.iury.backendsenior.dto.AlbumRequestDTO;
+import com.iury.backendsenior.dto.album.AlbumRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

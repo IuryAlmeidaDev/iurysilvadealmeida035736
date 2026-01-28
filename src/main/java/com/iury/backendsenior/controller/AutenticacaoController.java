@@ -1,10 +1,10 @@
 package com.iury.backendsenior.controller;
 
-import com.iury.backendsenior.dto.DadosAutenticacao;
-import com.iury.backendsenior.dto.DadosTokenJWT;
-import com.iury.backendsenior.dto.DadosTokensJWT;
-import com.iury.backendsenior.dto.RefreshTokenDTO;
-import com.iury.backendsenior.dto.RegisterDTO;
+import com.iury.backendsenior.dto.autenticacao.DadosAutenticacaoDTO;
+import com.iury.backendsenior.dto.autenticacao.DadosTokenJWTDTO;
+import com.iury.backendsenior.dto.autenticacao.DadosTokensJWTDTO;
+import com.iury.backendsenior.dto.autenticacao.RefreshTokenDTO;
+import com.iury.backendsenior.dto.autenticacao.RegisterDTO;
 import com.iury.backendsenior.model.Usuario;
 import com.iury.backendsenior.repository.UsuarioRepository;
 import com.iury.backendsenior.service.TokenService;
@@ -44,7 +44,7 @@ public class AutenticacaoController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<DadosTokensJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacao dados) {
+    public ResponseEntity<DadosTokensJWTDTO> efetuarLogin(@RequestBody @Valid DadosAutenticacaoDTO dados) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
 
         var authentication = manager.authenticate(authenticationToken);
@@ -54,11 +54,11 @@ public class AutenticacaoController {
         var accessToken = tokenService.gerarToken(usuario);
         var refreshToken = tokenService.gerarRefreshToken(usuario);
 
-        return ResponseEntity.ok(new DadosTokensJWT(accessToken, refreshToken));
+        return ResponseEntity.ok(new DadosTokensJWTDTO(accessToken, refreshToken));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<DadosTokenJWT> refresh(@RequestBody @Valid RefreshTokenDTO dto) {
+    public ResponseEntity<DadosTokenJWTDTO> refresh(@RequestBody @Valid RefreshTokenDTO dto) {
         String login = tokenService.validarRefreshToken(dto.refreshToken());
 
         if (login.isBlank()) {
@@ -71,6 +71,6 @@ public class AutenticacaoController {
         }
 
         String novoAccessToken = tokenService.gerarToken(usuario);
-        return ResponseEntity.ok(new DadosTokenJWT(novoAccessToken));
+        return ResponseEntity.ok(new DadosTokenJWTDTO(novoAccessToken));
     }
 }
