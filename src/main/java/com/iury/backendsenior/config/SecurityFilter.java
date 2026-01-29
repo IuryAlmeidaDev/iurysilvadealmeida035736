@@ -23,25 +23,37 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final UsuarioRepository usuarioRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        var token = recuperarToken(request);
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        if (token != null) {
-            var login = tokenService.validarToken(token);
-            if (!login.isEmpty()) {
+        String token = recuperarToken(request);
+
+        if (token != null && !token.isBlank()) {
+            String login = tokenService.validarToken(token);
+
+            if (login != null && !login.isBlank()) {
                 UserDetails usuario = usuarioRepository.findByLogin(login);
+
                 if (usuario != null) {
-                    var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+                    var authentication =
+                            new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
         }
+
         filterChain.doFilter(request, response);
     }
 
     private String recuperarToken(HttpServletRequest request) {
-        var authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
         if (authHeader == null) return null;
-        return authHeader.replace("Bearer ", "");
+
+        if (!authHeader.startsWith("Bearer ")) return null;
+
+        return authHeader.substring("Bearer ".length()).trim();
     }
 }
