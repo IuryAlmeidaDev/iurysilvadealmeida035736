@@ -1,5 +1,6 @@
 package com.iury.backendsenior.service;
 
+import com.iury.backendsenior.dto.album.NewAlbumEventDTO;
 import com.iury.backendsenior.model.Album;
 import com.iury.backendsenior.model.AlbumImagem;
 import com.iury.backendsenior.model.Artista;
@@ -11,9 +12,11 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,12 +28,24 @@ public class AlbumService {
     private final AlbumImagemRepository albumImagemRepository;
     private final ArtistaRepository artistaRepository;
     private final MinioService minioService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public Album salvar(Album album, List<Long> artistaIds) {
         List<Artista> artistas = artistaRepository.findAllById(artistaIds);
         album.setArtistas(artistas);
-        return albumRepository.save(album);
+
+        Album albumSalvo = albumRepository.save(album);
+
+        NewAlbumEventDTO event = new NewAlbumEventDTO(
+                albumSalvo.getId(),
+                albumSalvo.getTitulo(),
+                albumSalvo.getAnoLancamento()
+        );
+
+        messagingTemplate.convertAndSend("/topic/new-album", event);
+
+        return albumSalvo;
     }
 
     public Page<Album> listar(Pageable pageable, TipoArtista tipoArtista) {
@@ -42,8 +57,7 @@ public class AlbumService {
 
     @Transactional
     public Album atualizar(Long id, Album albumAtualizado, List<Long> novosArtistasIds) {
-        Album albumExistente = albumRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Álbum não encontrado com id: " + id));
+        Album albumExistente = buscarPorId(id);
 
         albumExistente.setTitulo(albumAtualizado.getTitulo());
         albumExistente.setAnoLancamento(albumAtualizado.getAnoLancamento());
@@ -59,8 +73,10 @@ public class AlbumService {
     @Transactional
     public Album atualizarCapa(Long id, MultipartFile arquivo) {
         Album album = buscarPorId(id);
+
         String nomeArquivo = minioService.uploadArquivo(arquivo);
         album.setCapaUrl(nomeArquivo);
+
         return albumRepository.save(album);
     }
 
@@ -83,8 +99,7 @@ public class AlbumService {
             throw new IllegalArgumentException("Nenhum arquivo enviado");
         }
 
-        Album album = albumRepository.findById(albumId)
-                .orElseThrow(() -> new EntityNotFoundException("Álbum não encontrado com id: " + albumId));
+        Album album = buscarPorId(albumId);
 
         int ordem = albumImagemRepository.findByAlbumIdOrderByOrdemAsc(albumId).stream()
                 .map(AlbumImagem::getOrdem)
