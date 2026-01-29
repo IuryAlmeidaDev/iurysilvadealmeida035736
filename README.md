@@ -103,25 +103,34 @@ A API utiliza **JWT** para autenticação:
 
 ---
 
-## 🧪 Testes Automatizados
+## 🧪 Estratégia de Testes Automatizados
 
-O projeto possui **testes unitários, de controller e de integração**, cobrindo os módulos principais conforme exigido no edital.
+O projeto implementa uma pirâmide de testes robusta, cobrindo desde a lógica de negócio isolada até a integração completa com a infraestrutura de banco de dados e cache, garantindo a resiliência exigida pelo edital.
 
-### Tipos de testes
+### 🏗️ Tipos de Testes Implementados
 
-- **Unitários:** services com JUnit 5 + Mockito  
-- **Controller:** `@WebMvcTest`, validação de status e JSON  
-- **Integração:** `@SpringBootTest` com banco H2 em memória  
+* **Unitários:** Validação das regras de negócio nas camadas de `Service` utilizando **JUnit 5** e **Mockito** para isolamento total de dependências.
+* **Controller (Slicing):** Testes de contrato e comportamento utilizando `@WebMvcTest`. Validam o mapeamento de rotas, payloads JSON, validações de Bean Validation e filtros de segurança (JWT).
+* **Integração (Full Context):** Testes ponta-a-ponta utilizando `@SpringBootTest` com ambiente real de memória para validar a persistência JPA e o fluxo de segurança completo.
 
-### Executar todos os testes
+### 🚀 Diferenciais de Infraestrutura (Portabilidade)
+
+Para garantir que a suíte de testes seja executada em qualquer ambiente sem necessidade de configurações manuais ou dependência de Docker, foram adotadas as seguintes tecnologias:
+
+* **Redis em Memória:** Utilização do `embedded-redis`, que é iniciado automaticamente durante os testes de integração para validar o **Rate Limit Distribuído** de forma isolada e veloz.
+* **Banco de Dados H2:** Persistência testada em memória com `MODE=PostgreSQL`, garantindo que as migrations do **Flyway** sejam validadas em cada build.
+* **Validação de Rate Limit:** Teste automatizado dedicado que simula o consumo de tokens e confirma o bloqueio preventivo (HTTP 429) após exceder o limite de requisições.
+
+
+
+### 🛠️ Como Executar os Testes
+
+**Executar toda a suíte de testes:**
 ```bash
 mvn test
 ```
-
-### Executar apenas testes de integração
-```bash
+# Executar apenas os testes de integração (Infraestrutura)
 mvn -Dtest=*IntegrationTest test
-```
 
 ---
 
