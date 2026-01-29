@@ -129,9 +129,10 @@ Para garantir que a suíte de testes seja executada em qualquer ambiente sem nec
 ```bash
 mvn test
 ```
-# Executar apenas os testes de integração (Infraestrutura)
+**Executar apenas os testes de integração (Infraestrutura)**
+```bash
 mvn -Dtest=*IntegrationTest test
-
+```
 ---
 
 ## 🧪 Observações Técnicas
