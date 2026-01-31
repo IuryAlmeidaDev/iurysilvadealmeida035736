@@ -29,19 +29,37 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
+                    // Preflight
                     req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+
+                    // WebSocket handshake (STOMP)
                     req.requestMatchers("/ws-albuns/**").permitAll();
+
+                    // Observabilidade
                     req.requestMatchers("/actuator/**").permitAll();
+
+                    // Documentação
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll();
 
+                    // Autenticação
                     req.requestMatchers(HttpMethod.POST, "/v1/auth/login", "/v1/auth/register", "/v1/auth/refresh")
                             .permitAll();
 
+                    // Catálogo público (somente GET)
+                    req.requestMatchers(HttpMethod.GET,
+                            "/v1/albuns/**",
+                            "/v1/artistas/**",
+                            "/v1/musicas/**"
+                    ).permitAll();
+
+                    // Regionais: tudo protegido (GET e POST, inclusive /sincronizar)
+                    req.requestMatchers("/v1/regionais/**").authenticated();
+
+                    // Restante: protegido
                     req.anyRequest().authenticated();
                 })
-
+                
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-
                 .addFilterAfter(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .build();
