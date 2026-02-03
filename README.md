@@ -3,154 +3,223 @@
 > **Candidato:** Iury Almeida  
 > **Cargo:** Analista de Tecnologia da Informação  
 > **Perfil:** Engenheiro da Computação (Nível Sênior)  
-> **Processo Seletivo:** Edital Conjunto N° 001/2026/SEPLAG/SEFAZ/SEDUC...
+> **Processo Seletivo:** Edital Conjunto Nº 001/2026/SEPLAG/SEFAZ/SEDUC  
 
 ---
 
-API desenvolvida em **Spring Boot** para gerenciamento de artistas e álbuns musicais, atendendo aos requisitos do **Anexo II-A** do edital. O projeto conta com autenticação JWT, versionamento de endpoints, upload de imagens em armazenamento S3 compatível (MinIO) e controle de banco via Flyway.
+## 1. Visão Geral do Projeto
 
-Todos os endpoints estão versionados em `/v1`.
+Este projeto consiste na implementação de uma **API RESTful Back End em Java**, desenvolvida com **Spring Boot**, cujo objetivo é gerenciar um **catálogo musical** composto por **Artistas** e **Álbuns**, atendendo integralmente aos requisitos técnicos e arquiteturais definidos no edital do processo seletivo.
 
----
+A solução foi construída com foco em:
+- boas práticas de engenharia de software
+- separação clara de responsabilidades
+- segurança, escalabilidade e observabilidade
+- aderência a padrões utilizados em ambientes reais de produção
 
-## 🧱 Stack Tecnológica
-
-- Java 17
-- Spring Boot
-- Spring Security (JWT – access + refresh token)
-- PostgreSQL 16
-- Flyway (migrations e carga inicial)
-- MinIO (S3 compatível)
-- OpenAPI / Swagger
-- Spring Actuator (health, readiness, liveness)
-- Docker + Docker Compose
+Toda a aplicação pode ser executada de forma **isolada e reprodutível** por meio de **Docker Compose**, eliminando dependências externas para avaliação.
 
 ---
 
-## ▶️ Como executar com Docker (recomendado)
+## 2. Stack Tecnológica
 
-### Subir todos os serviços
+- **Java 17**
+- **Spring Boot**
+- **Spring Security**
+- **JWT (Access Token + Refresh Token)**
+- **PostgreSQL**
+- **Flyway** (controle de versionamento do banco)
+- **Redis**
+- **Bucket4j** (rate limit distribuído)
+- **MinIO** (storage S3 compatível)
+- **WebSocket (STOMP)**
+- **Spring Actuator**
+- **Docker / Docker Compose**
+- **Maven**
+
+---
+
+## 3. Arquitetura da Solução
+
+A aplicação segue uma arquitetura em camadas, amplamente adotada em projetos corporativos:
+
+- **Controller:** exposição dos endpoints REST, validação de entrada e versionamento de API.
+- **Service:** regras de negócio, orquestração de fluxos, integrações e controle transacional.
+- **Repository:** persistência de dados utilizando Spring Data JPA.
+- **Model:** entidades JPA, enums e relacionamentos.
+- **Config:** configurações de segurança, CORS, WebSocket, rate limit e integrações externas.
+- **db/migration:** migrations Flyway para criação e evolução do schema do banco.
+
+Essa abordagem garante manutenibilidade, testabilidade e facilidade de evolução do sistema.
+
+---
+
+## 4. Atendimento aos Requisitos do Edital
+
+Esta seção apresenta, de forma objetiva, como cada requisito solicitado no edital foi atendido.
+
+### 4.1 API REST para gerenciamento de dados
+✔ **Atendido**
+- Endpoints RESTful versionados em `/v1`
+- Operações completas de CRUD para Artistas e Álbuns
+- Paginação e filtros utilizando `Pageable`
+
+### 4.2 Persistência em banco de dados relacional
+✔ **Atendido**
+- Banco de dados PostgreSQL
+- Controle de schema e versionamento via Flyway
+- Migrations automatizadas no startup da aplicação
+
+### 4.3 Autenticação e autorização
+✔ **Atendido**
+- Autenticação baseada em JWT
+- Emissão de Access Token e Refresh Token
+- Proteção de endpoints sensíveis com Spring Security
+- Controle de acesso por perfil (roles)
+
+### 4.4 Criação e gerenciamento de usuários
+✔ **Atendido**
+
+> ⚠️ **Observação Importante**  
+> Não existe usuário pré-criado via script ou migration.  
+> O primeiro usuário deve ser criado utilizando o endpoint:
+> `POST /v1/auth/register`  
+>
+> Essa decisão segue práticas reais de mercado, evitando credenciais fixas e simulando um ambiente de produção seguro.
+
+### 4.5 Upload e gerenciamento de arquivos
+✔ **Atendido**
+- Upload multipart de capa do álbum e imagens adicionais
+- Armazenamento em serviço S3 compatível (MinIO)
+- Retorno de URLs pré-assinadas para acesso controlado
+
+### 4.6 Rate Limit
+✔ **Atendido**
+- Implementação de rate limit distribuído
+- Redis como storage compartilhado
+- Controle por usuário autenticado ou endereço IP
+- Retorno HTTP 429 quando o limite é excedido
+
+### 4.7 Comunicação em tempo real
+✔ **Atendido**
+- Implementação de WebSocket com protocolo STOMP
+- Publicação automática de evento ao criar novo álbum
+- Tópico: `/topic/new-album`
+
+---
+
+## 5. Funcionalidades Implementadas
+
+### Artistas
+- Cadastro
+- Atualização
+- Remoção
+- Listagem paginada
+- Busca por texto
+
+### Álbuns
+- Cadastro vinculado a artista
+- Atualização
+- Remoção
+- Listagem paginada
+- Filtro por tipo de artista
+
+### Segurança
+- Registro de usuários
+- Login
+- Renovação de token (refresh)
+- Autorização por role
+
+---
+
+## 6. Execução do Projeto
+
+### 6.1 Execução com Docker Compose (Recomendado)
+
+Pré-requisitos:
+- Docker
+- Docker Compose
+
 ```bash
 docker compose up --build
 ```
 
-O comando acima sobe:
-- API Spring Boot
-- PostgreSQL
-- MinIO
-- Criação automática do bucket `capas-albuns`
+Serviços disponíveis:
+- API: http://localhost:8080
+- PostgreSQL: localhost:5432
+- Redis: localhost:6379
+- MinIO API: http://localhost:9000
+- MinIO Console: http://localhost:9001  
+  Usuário/Senha padrão: minioadmin / minioadmin
 
 ---
 
-## 🌐 URLs importantes
+## 7. Fluxo Rápido de Validação (Avaliador)
 
-- **Swagger (OpenAPI)**  
-  http://localhost:8080/swagger-ui/index.html
+1. Subir a aplicação com Docker Compose  
+2. Criar usuário em `/v1/auth/register`  
+3. Realizar login em `/v1/auth/login`  
+4. Criar artista (endpoint protegido)  
+5. Criar álbum (endpoint protegido)  
+6. Validar recebimento do evento WebSocket em `/topic/new-album`  
 
-- **Health Check**  
-  http://localhost:8080/actuator/health
-
-- **Readiness**  
-  http://localhost:8080/actuator/health/readiness
-
-- **Liveness**  
-  http://localhost:8080/actuator/health/liveness
-
-- **MinIO Console**  
-  http://localhost:9001  
-  Usuário: `minioadmin`  
-  Senha: `minioadmin`
-
-- **MinIO API (S3)**  
-  http://localhost:9000
+Todo o fluxo pode ser validado em menos de 5 minutos.
 
 ---
 
-## 🔐 Autenticação (JWT)
+## 8. Endpoints Principais
 
-A API utiliza **JWT** para autenticação:
-- Access Token: expira em **5 minutos**
-- Refresh Token: expiração configurada separadamente
+### Autenticação
+- POST `/v1/auth/register`
+- POST `/v1/auth/login`
+- POST `/v1/auth/refresh`
 
-### Login
-`POST /v1/auth/login`
+### Artistas
+- GET `/v1/artistas`
+- GET `/v1/artistas/{id}`
+- POST `/v1/artistas`
+- PUT `/v1/artistas/{id}`
+- DELETE `/v1/artistas/{id}`
 
-### Refresh Token
-`POST /v1/auth/refresh`
-
-> ⚠️ Observação: o usuário inicial é criado via **Flyway migration**.
-
----
-
-## 📚 Endpoints principais
-
-### 🎤 Artistas
-- `GET /v1/artistas`
-- `POST /v1/artistas`
-- `PUT /v1/artistas/{id}`
-- `GET /v1/artistas/{id}`
-
-### 💿 Álbuns
-- `GET /v1/albuns`
-- `POST /v1/albuns`
-- `PUT /v1/albuns/{id}`
-- `GET /v1/albuns/{id}`
-- `GET /v1/albuns?tipoArtista=CANTOR|BANDA`
-
-### 🖼️ Upload de imagens
-- `POST /v1/albuns/{id}/capa`
-- `POST /v1/albuns/{id}/imagens`
+### Álbuns
+- GET `/v1/albuns`
+- GET `/v1/albuns/{id}`
+- POST `/v1/albuns`
+- PUT `/v1/albuns/{id}`
+- DELETE `/v1/albuns/{id}`
+- POST `/v1/albuns/{id}/capa`
+- POST `/v1/albuns/{id}/imagens`
 
 ---
 
-## 🧪 Estratégia de Testes Automatizados
+## 9. Observabilidade
 
-O projeto implementa uma pirâmide de testes robusta, cobrindo desde a lógica de negócio isolada até a integração completa com a infraestrutura de banco de dados e cache, garantindo a resiliência exigida pelo edital.
+A aplicação expõe endpoints do Spring Actuator para monitoramento:
 
-### 🏗️ Tipos de Testes Implementados
+- `/actuator/health`
+- `/actuator/health/readiness`
+- `/actuator/health/liveness`
 
-* **Unitários:** Validação das regras de negócio nas camadas de `Service` utilizando **JUnit 5** e **Mockito** para isolamento total de dependências.
-* **Controller (Slicing):** Testes de contrato e comportamento utilizando `@WebMvcTest`. Validam o mapeamento de rotas, payloads JSON, validações de Bean Validation e filtros de segurança (JWT).
-* **Integração (Full Context):** Testes ponta-a-ponta utilizando `@SpringBootTest` com ambiente real de memória para validar a persistência JPA e o fluxo de segurança completo.
+---
 
-### 🚀 Diferenciais de Infraestrutura (Portabilidade)
+## 10. Testes
 
-Para garantir que a suíte de testes seja executada em qualquer ambiente sem necessidade de configurações manuais ou dependência de Docker, foram adotadas as seguintes tecnologias:
+Os testes podem ser executados com:
 
-* **Redis em Memória:** Utilização do `embedded-redis`, que é iniciado automaticamente durante os testes de integração para validar o **Rate Limit Distribuído** de forma isolada e veloz.
-* **Banco de Dados H2:** Persistência testada em memória com `MODE=PostgreSQL`, garantindo que as migrations do **Flyway** sejam validadas em cada build.
-* **Validação de Rate Limit:** Teste automatizado dedicado que simula o consumo de tokens e confirma o bloqueio preventivo (HTTP 429) após exceder o limite de requisições.
-
-
-
-### 🛠️ Como Executar os Testes
-
-**Executar toda a suíte de testes:**
 ```bash
-mvn test
+./mvnw test
 ```
-**Executar apenas os testes de integração (Infraestrutura)**
-```bash
-mvn -Dtest=*IntegrationTest test
-```
----
 
-## 🧪 Observações Técnicas
-
-- Banco gerenciado exclusivamente pelo Flyway
-- Hibernate configurado com `ddl-auto=validate`
-- Profile `docker` usado no ambiente containerizado
-- Buckets MinIO criados automaticamente
-- Endpoints protegidos por JWT
-- Actuator habilitado
+Incluem:
+- testes unitários de serviços
+- testes de controllers
+- testes de integração
 
 ---
 
-## 🗂️ Estrutura do Projeto
+## 11. Considerações Finais
 
-- `controller/`
-- `service/`
-- `repository/`
-- `config/`
-- `model/`
-- `db/migration/`
+Este projeto foi desenvolvido com foco em qualidade, clareza e aderência ao edital, simulando um cenário real de aplicação corporativa em produção.
+
+A documentação foi estruturada para permitir **avaliação técnica objetiva**, **reprodutibilidade do ambiente** e **rastreabilidade completa dos requisitos**.
+
