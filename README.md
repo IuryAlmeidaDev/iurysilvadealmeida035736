@@ -4,7 +4,6 @@
 > **Cargo:** Analista de Tecnologia da Informação  
 > **Perfil:** Engenheiro da Computação (Nível Sênior)  
 > **Processo Seletivo:** Edital Conjunto Nº 001/2026/SEPLAG  
-> **Repositório GitHub:** https://github.com/iurysilvadealmeida035736.git
 
 ---
 
@@ -467,12 +466,92 @@ Faça mais de 10 requisições em menos de 1 minuto para o mesmo endpoint:
 
 ---
 
-### 🔌 Passo 10: Conectar ao WebSocket (Notificações em Tempo Real)
+## 🔌 Passo 10: Conectar ao WebSocket (Notificações em Tempo Real)
 
-**Endpoint WebSocket:** `ws://localhost:8080/ws`
+Este projeto implementa **WebSocket + STOMP** para notificar o front-end **em tempo real** sempre que um novo álbum é cadastrado, conforme exigido no edital.
 
-4. Ainda testando! 🎉
-> **⚠️ Atenção ao CORS:** O sistema está configurado para aceitar conexões apenas de `http://localhost:3000`. Se estiver testando a partir de outra origem, certifique-se de ajustar a política de CORS no `WebSecurityConfig`.
+### 📡 Endpoint WebSocket (STOMP)
+- **WebSocket endpoint:** `ws://localhost:8080/ws-albuns`
+- **Tópico (subscribe):** `/topic/new-album`
+
+---
+
+## 🤔 Por que WebSocket + STOMP?
+
+O **WebSocket** fornece o canal de comunicação em tempo real, porém em sua forma “pura” ele apenas envia e recebe mensagens sem um padrão de mensageria.
+
+O **STOMP (Simple Text Oriented Messaging Protocol)** é um protocolo que opera **sobre o WebSocket**, adicionando conceitos importantes de mensageria, como:
+
+- **Publish / Subscribe**
+- **Tópicos** (`/topic/...`)
+- **Contratos de mensagens mais claros**
+- Melhor **desacoplamento** entre produtores e consumidores
+- Maior **facilidade de manutenção e evolução**
+
+Na prática, o STOMP transforma o WebSocket em um modelo de comunicação mais estruturado e escalável, amplamente utilizado em aplicações de maior porte.
+
+---
+
+## ⚠️ Limitação de ferramentas como Insomnia e Postman
+
+Ferramentas como **Insomnia** e **Postman** conseguem estabelecer conexões WebSocket, porém **não oferecem suporte completo ao protocolo STOMP**.
+
+O STOMP exige o envio de *frames específicos* (CONNECT, SUBSCRIBE, MESSAGE), incluindo um **byte nulo (`\0`)** como terminador de frame. Essas ferramentas não conseguem enviar esse terminador corretamente, o que inviabiliza ou torna inconsistente o teste do fluxo STOMP completo.
+
+Por esse motivo, o uso dessas ferramentas não é recomendado para validar WebSocket + STOMP.
+
+A própria documentação oficial do Spring demonstra o uso de um **cliente STOMP** (como `stomp.js`) para testes, e não ferramentas como Postman ou Insomnia:
+
+https://spring.io/guides/gs/messaging-stomp-websocket
+
+---
+
+## ✅ Como testar o WebSocket corretamente (Cliente STOMP)
+
+Para facilitar a validação do WebSocket, foi criado um **repositório separado** contendo uma página HTML simples que atua como **cliente STOMP**, permitindo que qualquer avaliador teste as notificações em tempo real diretamente no navegador.
+
+📁 Repositório do cliente WebSocket:
+https://github.com/IuryAlmeidaDev/WebSocket-Stomp.git
+
+### ▶️ Passo a passo para teste
+
+1. Clone o repositório do cliente:
+```bash
+git clone https://github.com/IuryAlmeidaDev/WebSocket-Stomp.git
+cd WebSocket-Stomp
+```
+
+2. Abra o arquivo `index.html` utilizando o **Live Server** (VS Code).
+   - O Live Server normalmente expõe o site em:
+```text
+http://localhost:5500
+```
+
+3. Na página web:
+   - **WebSocket URL:** `ws://localhost:8080/ws-albuns`
+   - **Tópico:** `/topic/new-album`
+   - Clique em **Conectar**
+
+4. Crie um novo álbum via API REST.
+   - Assim que o álbum for cadastrado, a notificação será exibida **em tempo real** na página.
+
+---
+
+## 🔐 Configuração de CORS
+
+O backend está configurado para aceitar conexões apenas de origens explicitamente permitidas.
+
+Para testes locais com o cliente HTML e front-end, estão liberadas as seguintes origens:
+
+- `http://localhost:3000`
+- `http://localhost:5500`
+
+Exemplo de configuração:
+```env
+APP_CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5500
+```
+
+Essa abordagem garante segurança, evita o uso de wildcards (`*`) e está alinhada com boas práticas de CORS.
 
 ---
 
