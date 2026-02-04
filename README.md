@@ -609,7 +609,7 @@ Você deve criar seu próprio usuário usando o endpoint `/v1/auth/register` ant
 ### CORS (Cross-Origin Resource Sharing)
 
 Configurado para aceitar apenas:
-- `http://localhost:3000` (configurável via `APP_CORS_ALLOWED_ORIGINS`)
+- `http://localhost:3000 e http://localhost:5500` (configurável via `APP_CORS_ALLOWED_ORIGINS`)
 
 ---
 
@@ -802,11 +802,6 @@ mvn test
 **Apenas testes de integração:**
 ```bash
 mvn -Dtest=*IntegrationTest test
-```
-
-**Com relatório de cobertura:**
-```bash
-mvn clean test jacoco:report
 ```
 
 ### Infraestrutura de Testes
