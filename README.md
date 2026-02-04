@@ -141,8 +141,7 @@ docker-compose --version
 ### 1️⃣ Clonar o Repositório
 
 ```bash
-git clone https://github.com/iurysilvadealmeida035736.git
-cd iurysilvadealmeida035736-main
+git clone https://github.com/IuryAlmeidaDev/iurysilvadealmeida035736
 ```
 
 ### 2️⃣ Subir Todos os Serviços (Recomendado)
@@ -591,9 +590,9 @@ Você deve criar seu próprio usuário usando o endpoint `/v1/auth/register` ant
 **Exemplo de registro:**
 ```json
 {
-  "login": "admin",
+  "login": "user",
   "senha": "senha123",
-  "role": "ADMIN"
+  "role": "USER"
 }
 ```
 
