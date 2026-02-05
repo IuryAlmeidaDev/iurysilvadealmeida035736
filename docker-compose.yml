@@ -60,11 +60,25 @@ services:
     container_name: backend-minio-init
     depends_on:
       - minio
+    restart: "no"
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
-      /usr/bin/mc mb -p myminio/capas-albuns || true;
-      /usr/bin/mc anonymous set public myminio/capas-albuns || true;
+      echo 'Iniciando configuração do MinIO...'
+      
+      # Loop: Tenta conectar a cada 1 segundo até o MinIO responder
+      until /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin; do
+        echo 'MinIO ainda não está pronto. Tentando novamente em 1s...'
+        sleep 1
+      done;
+      
+      echo 'Conectado! Criando bucket...'
+      # O -p garante que não dê erro se o bucket já existir
+      /usr/bin/mc mb -p myminio/capas-albuns;
+      
+      echo 'Definindo permissão pública...'
+      /usr/bin/mc anonymous set public myminio/capas-albuns;
+      
+      echo 'Tudo pronto. Encerrando container de setup.'
       exit 0;
       "
     networks:
