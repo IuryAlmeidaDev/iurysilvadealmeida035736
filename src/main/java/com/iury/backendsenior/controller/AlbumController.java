@@ -59,7 +59,7 @@ public class AlbumController {
 
     @GetMapping
     public ResponseEntity<Page<AlbumResponseDTO>> listar(
-            @RequestParam(required = false) TipoArtista tipoArtista,
+            @RequestParam(name = "tipoArtista", required = false) TipoArtista tipoArtista,
             Pageable pageable
     ) {
         Page<Album> resultado = service.listar(pageable, tipoArtista);
