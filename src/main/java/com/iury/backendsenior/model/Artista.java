@@ -26,8 +26,7 @@ public class Artista {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Builder.Default
-    private TipoArtista tipo = TipoArtista.CANTOR;
+    private TipoArtista tipo;
 
     @ManyToMany(mappedBy = "artistas")
     private List<Album> albuns;
