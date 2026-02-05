@@ -344,28 +344,68 @@ Agora que você criou um usuário, faça login para obter os tokens de autentica
 
 ---
 
-### 🖼️ Passo 5: Fazer Upload de Imagem de Capa
+### 🖼️ Passo 5: Upload de Imagens do Álbum
 
-**Endpoint:** `POST http://localhost:8080/v1/albuns/{id}/imagens`
+Neste passo é possível **adicionar múltiplas imagens à galeria do álbum** ou **definir diretamente a imagem de capa**, utilizando endpoints distintos conforme o objetivo.
+
+---
+
+#### ➕ Upload de imagens do álbum (galeria)
+
+**Endpoint:**  
+`POST http://localhost:8080/v1/albuns/{id}/imagens`
 
 **Exemplo no Insomnia:**
-1. Crie nova requisição: `POST http://localhost:8080/v1/albuns/1/imagens`
-2. Auth → Bearer Token → Cole seu token
-3. Body → `Multipart Form`
-4. Adicione campo:
-   - Nome: `files`
-   - Tipo: `File`
-   - Selecione uma imagem do seu computador
-5. Clique em `Send`
+
+1. Crie uma nova requisição:  
+   `POST http://localhost:8080/v1/albuns/1/imagens`
+2. Vá em **Auth** → `Bearer Token` → Cole seu token JWT
+3. Vá em **Body** → `Multipart Form`
+4. Adicione um ou mais campos:
+   - **Nome:** `files`
+   - **Tipo:** `File`
+   - **Valor:** selecione uma ou mais imagens do seu computador
+5. Clique em **Send**
 
 **Resposta esperada:**
 ```json
 [
-	"http://minio:9000/capas-albuns/0724de19-3afd-49de-830d-40bd34ee22b9................."
+  "http://minio:9000/imagens-albuns/0724de19-3afd-49de-830d-40bd34ee22b9.................",
+  "http://minio:9000/imagens-albuns/8a1fbc92-4c8e-4d8b-9f8a-7c0d2e1a9abc................."
 ]
 ```
 
-**⏰ Nota:** A URL pré-assinada (`urlPresigned`) expira em **30 minutos**.
+**⏰ Nota:**  
+As URLs pré-assinadas (`urlPresigned`) expiram em **30 minutos**.
+
+---
+
+#### ⭐ Definir imagem de capa do álbum
+
+**Endpoint:**  
+`POST http://localhost:8080/v1/albuns/{id}/capa`
+
+**Exemplo no Insomnia:**
+
+1. Crie uma nova requisição:  
+   `POST http://localhost:8080/v1/albuns/1/capa`
+2. Vá em **Auth** → `Bearer Token` → Cole seu token JWT
+3. Vá em **Body** → `Multipart Form`
+4. Adicione o campo:
+   - **Nome:** `file`
+   - **Tipo:** `File`
+   - **Valor:** selecione uma imagem do seu computador
+5. Clique em **Send**
+
+**Resposta esperada:**
+```json
+{
+  "url": "http://minio:9000/capas-albuns/0724de19-3afd-49de-830d-40bd34ee22b9................."
+}
+```
+
+**⏰ Nota:**  
+A URL pré-assinada (`urlPresigned`) expira em **30 minutos**.
 
 ---
 
