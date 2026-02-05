@@ -203,17 +203,6 @@ Para facilitar os testes, recomendo usar o **[Insomnia](https://insomnia.rest/do
 
 **Importante:** A API não possui usuário padrão. Você precisa criar um usuário primeiro!
 
-**Endpoint:** `POST http://localhost:8080/v1/auth/register`
-
-**Body (JSON):**
-```json
-{
-  "login": "admin",
-  "senha": "senha123",
-  "role": "ADMIN"
-}
-```
-
 **Roles disponíveis:** `ADMIN` ou `USER`
 
 **Exemplo no Insomnia:**
@@ -243,16 +232,6 @@ HTTP 200 OK
 ### 🔑 Passo 2: Fazer Login e Obter Tokens JWT
 
 Agora que você criou um usuário, faça login para obter os tokens de autenticação.
-
-**Endpoint:** `POST http://localhost:8080/v1/auth/login`
-
-**Body (JSON):**
-```json
-{
-  "login": "admin",
-  "senha": "senha123"
-}
-```
 
 **Exemplo no Insomnia:**
 1. Crie nova requisição: `POST http://localhost:8080/v1/auth/login`
@@ -392,9 +371,19 @@ Agora que você criou um usuário, faça login para obter os tokens de autentica
 
 ### 🔍 Passo 6: Filtrar Álbuns por Tipo de Artista
 
-**Exemplo no Insomnia**
-- URL: `http://localhost:8080/v1/albuns?tipoArtista=BANDA`
-- Não esqueça do Bearer Token!
+Este endpoint permite filtrar os álbuns de acordo com o tipo de artista associado.
+
+**Método:** `GET`  
+**Endpoint:** `http://localhost:8080/v1/albuns`
+
+**Parâmetro**
+- `tipoArtista`: `BANDA` ou `CANTOR`
+
+**Exemplos no Insomnia**
+- Bandas: `http://localhost:8080/v1/albuns?tipoArtista=BANDA`
+- Cantores: `http://localhost:8080/v1/albuns?tipoArtista=CANTOR`
+
+⚠️ Não esqueça do **Bearer Token** no header `Authorization`.
 
 ---
 
