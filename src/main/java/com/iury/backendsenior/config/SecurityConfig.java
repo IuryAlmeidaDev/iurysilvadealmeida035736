@@ -48,8 +48,7 @@ public class SecurityConfig {
                     // Catálogo público (somente GET)
                     req.requestMatchers(HttpMethod.GET,
                             "/v1/albuns/**",
-                            "/v1/artistas/**",
-                            "/v1/musicas/**"
+                            "/v1/artistas/**"
                     ).permitAll();
 
                     // Regionais: tudo protegido (GET e POST, inclusive /sincronizar)
